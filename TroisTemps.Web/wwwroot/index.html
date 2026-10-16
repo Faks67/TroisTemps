@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Trois Temps</title>
+  <meta name="description" content="Jeu d'ambiance en équipes : décrivez, puis un seul mot, puis mimez. À plusieurs sur vos téléphones ou sur un seul appareil.">
+  <meta name="theme-color" content="#1d1a33">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="js/theme.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Trois Temps, accueil">
+      <img src="favicon.svg" alt="" width="34" height="34">
+      <span>Trois Temps</span>
+    </a>
+    <div class="topbar-right">
+      <button id="room-chip" class="chip" type="button" hidden></button>
+      <button class="icon-btn" id="btn-menu" type="button" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- Accueil -->
+    <section class="screen" id="screen-home">
+      <div class="hero">
+        <p class="eyebrow">Jeu d'ambiance en équipes · 4 à 20 joueurs</p>
+        <h1><span class="c1">Décris.</span> <span class="c2">Un mot.</span> <span class="c3">Mime.</span></h1>
+        <p class="lead">Les mêmes cartes, trois manches, de plus en plus dur. Faites deviner un maximum
+          de cartes à votre équipe avant la fin du chrono.</p>
+        <ol class="steps">
+          <li><b>1</b><span><strong>Décrire</strong>Tout est permis, sauf les mots de la carte.</span></li>
+          <li><b>2</b><span><strong>Un seul mot</strong>Un mot, pas un de plus.</span></li>
+          <li><b>3</b><span><strong>Mime</strong>Plus un son : seulement des gestes.</span></li>
+        </ol>
+      </div>
+
+      <div class="card home-card">
+        <p class="join-banner" id="join-banner" hidden></p>
+        <label class="field">
+          <span>Ton prénom ou pseudo</span>
+          <input id="name" maxlength="20" autocomplete="nickname" placeholder="Ex. : Camille" enterkeyhint="go">
+        </label>
+        <div id="home-create">
+          <button class="btn btn-primary btn-lg" id="btn-create" type="button">Créer une salle</button>
+          <div class="divider"><span>ou rejoindre avec un code</span></div>
+          <div class="join-row">
+            <input id="code" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off" aria-label="Code de la salle">
+            <button class="btn btn-secondary" id="btn-join" type="button">Rejoindre</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-lg" id="btn-join-link" type="button" hidden>Rejoindre la salle</button>
+        <p class="error" id="home-error" role="alert"></p>
+      </div>
+
+      <button class="card local-card" id="btn-local" type="button">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
+        <span><strong>Un seul appareil</strong>On se passe le téléphone ou la tablette à tour de rôle.</span>
+        <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+
+      <p class="home-links"><button class="link" type="button" data-open="sheet-rules">Lire les règles complètes</button></p>
+    </section>
+
+    <!-- Salon -->
+    <section class="screen" id="screen-lobby" hidden>
+      <div class="lobby-grid">
+        <div class="card invite-card" id="invite-card">
+          <div class="invite-main">
+            <p class="eyebrow">Code de la salle</p>
+            <p class="room-code" id="lobby-code">----</p>
+            <p class="muted small" id="invite-hint">Les autres joueurs scannent le QR code ou ouvrent le lien.</p>
+            <div class="row gap">
+              <button class="btn btn-secondary btn-sm" id="btn-copy" type="button">Copier le lien</button>
+              <button class="btn btn-secondary btn-sm" id="btn-share" type="button" hidden>Partager</button>
+            </div>
+            <p class="link-text" id="invite-link"></p>
+          </div>
+          <div class="qr" id="qr" aria-label="QR code du lien d'invitation"></div>
+        </div>
+
+        <div class="card local-add" id="local-add" hidden>
+          <p class="eyebrow">Joueurs autour de l'appareil</p>
+          <form class="join-row" id="form-local-player">
+            <input id="local-name" maxlength="20" placeholder="Prénom d'un joueur" autocomplete="off" enterkeyhint="done">
+            <button class="btn btn-primary" type="submit">Ajouter</button>
+          </form>
+          <p class="muted small">Ajoute chaque joueur, puis répartis-les en équipes. Touche un joueur pour le changer d'équipe ou le retirer.</p>
+        </div>
+
+        <div class="card teams-card">
+          <div class="card-head">
+            <h2>Équipes</h2>
+            <button class="btn btn-ghost btn-sm host-only" id="btn-shuffle" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+              Répartir au hasard
+            </button>
+          </div>
+          <div class="teams" id="teams"></div>
+          <p class="muted small" id="teams-hint"></p>
+        </div>
+
+        <div class="card" id="my-cards-card" hidden>
+          <div class="card-head">
+            <h2>Tes cartes</h2>
+            <span class="pill" id="my-cards-count"></span>
+          </div>
+          <p class="muted small" id="my-cards-hint">Ajoute des personnes ou des choses que tout le monde peut connaître. Les autres ne les verront qu'en jouant.</p>
+          <form class="join-row" id="form-card">
+            <input id="card-text" maxlength="40" placeholder="Ex. : Tonton Michel au barbecue" autocomplete="off" enterkeyhint="done">
+            <button class="btn btn-primary" type="submit">Ajouter</button>
+          </form>
+          <ul class="my-cards" id="my-cards"></ul>
+        </div>
+
+        <div class="card settings-card">
+          <div class="card-head">
+            <h2>Réglages</h2>
+            <span class="pill" id="settings-who"></span>
+          </div>
+          <div class="settings" id="settings"></div>
+        </div>
+      </div>
+
+      <div class="sticky-bar">
+        <p class="muted small" id="start-hint"></p>
+        <button class="btn btn-primary btn-lg" id="btn-start" type="button">Lancer la partie</button>
+      </div>
+    </section>
+
+    <!-- Partie -->
+    <section class="screen" id="screen-game" hidden>
+      <div class="scorebar" id="scorebar"></div>
+      <div class="stage" id="stage"></div>
+    </section>
+  </main>
+
+  <!-- Menu -->
+  <dialog class="sheet" id="sheet-menu">
+    <div class="sheet-body">
+      <div class="sheet-head"><h2>Menu</h2><button class="icon-btn" data-close type="button" aria-label="Fermer">✕</button></div>
+      <label class="switch-row"><span>Sons</span><input type="checkbox" id="opt-sound" role="switch"></label>
+      <label class="switch-row"><span>Vibrations</span><input type="checkbox" id="opt-vibrate" role="switch"></label>
+      <label class="switch-row"><span>Thème sombre</span><input type="checkbox" id="opt-dark" role="switch"></label>
+      <div class="menu-actions">
+        <button class="btn btn-secondary" type="button" data-open="sheet-rules">Règles du jeu</button>
+        <button class="btn btn-secondary host-only in-room" type="button" id="btn-manage">Gérer les joueurs</button>
+        <button class="btn btn-secondary host-only in-game" type="button" id="btn-to-lobby">Arrêter et revenir au salon</button>
+        <button class="btn btn-danger in-room" type="button" id="btn-leave">Quitter la salle</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Gestion d'un joueur -->
+  <dialog class="sheet" id="sheet-player">
+    <div class="sheet-body">
+      <div class="sheet-head"><h2 id="player-sheet-title">Joueur</h2><button class="icon-btn" data-close type="button" aria-label="Fermer">✕</button></div>
+      <div id="player-sheet-content"></div>
+    </div>
+  </dialog>
+
+  <!-- Règles -->
+  <dialog class="sheet" id="sheet-rules">
+    <div class="sheet-body rules">
+      <div class="sheet-head"><h2>Règles du jeu</h2><button class="icon-btn" data-close type="button" aria-label="Fermer">✕</button></div>
+      <p><strong>But :</strong> faire deviner un maximum de cartes à son équipe. Les mêmes cartes servent pendant les trois manches.</p>
+      <h3>Déroulement d'un tour</h3>
+      <ul>
+        <li>Les équipes jouent chacune leur tour ; dans une équipe, les joueurs font deviner à tour de rôle.</li>
+        <li>Celui qui fait deviner est le seul à voir la carte. Il a un temps limité (30 secondes par défaut).</li>
+        <li><strong>Trouvé</strong> : la carte est gagnée, la suivante apparaît. <strong>Passer</strong> : la carte retourne dans le paquet.</li>
+        <li>À la fin du chrono, celui qui a fait deviner vérifie les cartes trouvées (il peut en retirer une en cas d'erreur), puis c'est à l'équipe suivante.</li>
+        <li>Une manche se termine quand toutes les cartes du paquet ont été trouvées. S'il reste du temps, le joueur le garde pour commencer la manche suivante.</li>
+      </ul>
+      <h3>Les trois manches</h3>
+      <ol>
+        <li><strong>Décrire :</strong> on peut tout dire sauf les mots de la carte (ni les épeler, ni les traduire). Les devineurs proposent autant de réponses qu'ils veulent.</li>
+        <li><strong>Un seul mot :</strong> un seul mot par carte. L'équipe n'a droit qu'à une seule proposition ; si elle se trompe, on passe.</li>
+        <li><strong>Mime :</strong> aucun mot, aucun son, aucun bruitage. Seulement des gestes et des mimiques. Une seule proposition par carte.</li>
+      </ol>
+      <p>Chaque carte trouvée rapporte 1 point. L'équipe qui a le plus de points après les trois manches gagne.</p>
+      <h3>Astuce</h3>
+      <p>Pendant la manche 1, retenez bien les cartes et les indices qui ont marché : ils vous serviront pour le mot unique et le mime.</p>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="lib/signalr.min.js"></script>
+  <script src="lib/qrcode.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
